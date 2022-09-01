@@ -8,6 +8,7 @@ import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ASM4;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
@@ -21,8 +22,11 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
@@ -138,4 +142,93 @@ public class Test {
                 FileIOUtils.writeFileFromBytesByChannel(file, bytes, true);
         System.out.println("文件生成: " + writeFileFromBytesByChannel);
     }
+
+
+    public void modifyClass() throws IOException {
+        ClassReader cr = new ClassReader("com.intellif.asmgradle.OriginalClass");
+        final ClassWriter cw = new ClassWriter(cr, 0);
+
+        cr.accept(new ClassVisitor(ASM4, cw) {
+            @Override
+            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+//                if("testA".equals(name)){//拷贝的过程中删除一个方法
+//                    return null;
+//                }
+//
+//                if("testC".equals(name)){//将testC public方法变成protect
+//                    access=ACC_PROTECTED;
+//                }
+                MethodVisitor mv = cv.visitMethod(access, name, descriptor, signature, exceptions);
+
+
+                return new MethodVisitor(ASM4, mv) {
+                    @Override
+                    public void visitLineNumber(int line, Label start) {
+                        System.out.println("经过这个测试行数:" + line + "可以对应到源代码的行数");
+                        super.visitLineNumber(line, start);
+                    }
+
+
+                    @Override
+                    public void visitInsn(int opcode) {
+//                        super.visitInsn(opcode);
+                        //这里是访问语句结束，在return结束之前添加语句
+                        //其中的 owner 必须被设定为所转换类的名字。现在必须在
+                    }
+
+                    @Override
+                    public void visitCode() {
+                        //方法开始（可以在此处添加代码，在原来的方法之前执行）
+                        if ("i".equals(name)) {
+
+
+                        }
+
+
+                        super.visitCode();
+                    }
+
+
+                    @Override
+                    public void visitEnd() {
+                        //特别注意的是：要为类增加属性和方法，放到visitEnd中，避免破坏之前已经排列好的类结构，在结尾添加新结
+                        //增加一个字段（注意不能重复）,注意最后都要visitEnd
+                        FieldVisitor fieldVisitor = cv.visitField(ACC_PUBLIC | ACC_STATIC, "tagList", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/String;>;", null);
+                        fieldVisitor.visitEnd();
+                        //静态方法里面给tag集合添加数据   TODO
+                        MethodVisitor methodVisitor = cv.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+
+
+
+
+
+                        super.visitEnd();
+
+                    }
+                };
+            }
+
+
+            @Override
+            public void visitEnd() {
+                super.visitEnd();
+
+            }
+        }, 0);
+
+
+        String apth =
+                "D:\\AsWorkSpace\\AsmGradle\\app\\src\\test\\java\\com\\intellif\\asmgradle\\" + "OriginalClass2.class";
+        byte[] bytes = cw.toByteArray();
+        File file = new File(apth);
+        if (file.exists()) {
+            file.delete();
+        }
+        file.createNewFile();
+        boolean writeFileFromBytesByChannel =
+                FileIOUtils.writeFileFromBytesByChannel(file, bytes, true);
+        System.out.println("文件生成: " + writeFileFromBytesByChannel);
+
+    }
+
 }
