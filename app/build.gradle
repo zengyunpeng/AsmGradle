@@ -1,7 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+//    id 'com.hujiang.android-aspectjx'//没法用,gradle版本只支持到3.6.1
 }
+apply plugin: 'kotlin-android'
 
 android {
     compileSdk 32
@@ -43,4 +45,9 @@ dependencies {
 
     testImplementation("org.ow2.asm:asm-commons:9.2")
     testImplementation("org.ow2.asm:asm-tree:9.2")
+    implementation "androidx.core:core-ktx:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }
