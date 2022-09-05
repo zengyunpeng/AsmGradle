@@ -13,12 +13,14 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.IADD;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.LSTORE;
 import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
@@ -143,7 +145,7 @@ public class Test {
         System.out.println("文件生成: " + writeFileFromBytesByChannel);
     }
 
-
+    @org.junit.Test
     public void modifyClass() throws IOException {
         ClassReader cr = new ClassReader("com.intellif.asmgradle.OriginalClass");
         final ClassWriter cw = new ClassWriter(cr, 0);
@@ -180,8 +182,7 @@ public class Test {
                     public void visitCode() {
                         //方法开始（可以在此处添加代码，在原来的方法之前执行）
                         if ("i".equals(name)) {
-
-
+                            System.out.println("进入方法名为i的方法体");
                         }
 
 
@@ -193,13 +194,9 @@ public class Test {
                     public void visitEnd() {
                         //特别注意的是：要为类增加属性和方法，放到visitEnd中，避免破坏之前已经排列好的类结构，在结尾添加新结
                         //增加一个字段（注意不能重复）,注意最后都要visitEnd
-                        FieldVisitor fieldVisitor = cv.visitField(ACC_PUBLIC | ACC_STATIC, "tagList", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/String;>;", null);
-                        fieldVisitor.visitEnd();
+
                         //静态方法里面给tag集合添加数据   TODO
-                        MethodVisitor methodVisitor = cv.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-
-
-
+//                        MethodVisitor methodVisitor = cv.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
 
 
                         super.visitEnd();
@@ -211,6 +208,33 @@ public class Test {
 
             @Override
             public void visitEnd() {
+                System.out.println("-----------visitEnd-------------------");
+                FieldVisitor fieldVisitor = cv.visitField(ACC_PUBLIC | ACC_STATIC, "tagList", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/String;>;", null);
+                fieldVisitor.visitEnd();
+
+                //生成静态方法
+                {
+                    MethodVisitor methodVisitor = cv.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+                    methodVisitor.visitCode();
+                    Label label0 = new Label();
+                    methodVisitor.visitLabel(label0);
+                    methodVisitor.visitLineNumber(9, label0);
+                    methodVisitor.visitFieldInsn(GETSTATIC, "com/intellif/asmgradle/OriginalClass", "tagList", "Ljava/util/List;");
+                    methodVisitor.visitLdcInsn("KKYS");
+                    methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true);
+                    methodVisitor.visitInsn(POP);
+                    Label label1 = new Label();
+                    methodVisitor.visitLabel(label1);
+                    methodVisitor.visitLineNumber(10, label1);
+                    methodVisitor.visitInsn(RETURN);
+                    methodVisitor.visitMaxs(2, 0);
+                    methodVisitor.visitEnd();
+                }
+
+
+
+
+
                 super.visitEnd();
 
             }
