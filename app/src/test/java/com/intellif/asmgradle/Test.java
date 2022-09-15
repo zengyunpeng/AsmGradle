@@ -13,6 +13,7 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.IADD;
+import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -30,6 +31,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
@@ -171,6 +173,7 @@ public class Test {
                     }
 
 
+
                     @Override
                     public void visitInsn(int opcode) {
 //                        super.visitInsn(opcode);
@@ -180,13 +183,38 @@ public class Test {
 
                     @Override
                     public void visitCode() {
-                        //方法开始（可以在此处添加代码，在原来的方法之前执行）
+                        super.visitCode();
+//                        //方法开始（可以在此处添加代码，在原来的方法之前执行）
                         if ("i".equals(name)) {
-                            System.out.println("进入方法名为i的方法体");
+                            System.out.println("visitCode==>\"i\".equals(name)");
+                            MethodVisitor methodVisitor = cv.visitMethod(ACC_PUBLIC, "i", "(Ljava/lang/String;Ljava/lang/String;)V", null, null);
+                            methodVisitor.visitCode();
+                            Label label0 = new Label();
+                            methodVisitor.visitLabel(label0);
+                            methodVisitor.visitLineNumber(13, label0);
+                            methodVisitor.visitFieldInsn(GETSTATIC, "com/intellif/asmgradle/OriginalClassV2", "tagList", "Ljava/util/List;");
+                            methodVisitor.visitVarInsn(ALOAD, 1);
+                            methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "contains", "(Ljava/lang/Object;)Z", true);
+                            Label label1 = new Label();
+                            methodVisitor.visitJumpInsn(IFEQ, label1);
+                            Label label2 = new Label();
+                            methodVisitor.visitLabel(label2);
+                            methodVisitor.visitLineNumber(14, label2);
+                            methodVisitor.visitInsn(RETURN);
+                            methodVisitor.visitLabel(label1);
+                            methodVisitor.visitLineNumber(18, label1);
+                            methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+                            methodVisitor.visitInsn(RETURN);
+                            Label label3 = new Label();
+                            methodVisitor.visitLabel(label3);
+                            methodVisitor.visitLocalVariable("this", "Lcom/intellif/asmgradle/OriginalClassV2;", null, label0, label3, 0);
+                            methodVisitor.visitLocalVariable("tag", "Ljava/lang/String;", null, label0, label3, 1);
+                            methodVisitor.visitLocalVariable("content", "Ljava/lang/String;", null, label0, label3, 2);
+                            methodVisitor.visitMaxs(2, 3);
+                            methodVisitor.visitEnd();
                         }
 
 
-                        super.visitCode();
                     }
 
 
@@ -230,9 +258,6 @@ public class Test {
                     methodVisitor.visitMaxs(2, 0);
                     methodVisitor.visitEnd();
                 }
-
-
-
 
 
                 super.visitEnd();

@@ -4,7 +4,8 @@ plugins {
 //    id 'com.hujiang.android-aspectjx'//没法用,gradle版本只支持到3.6.1
 }
 apply plugin: 'kotlin-android'
-
+//apply plugin: com.intellif.plugin.MyPlugin
+//apply plugin: com.lbtrace.ASMPlugin
 android {
     compileSdk 32
 

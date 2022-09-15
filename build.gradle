@@ -2,11 +2,15 @@
 buildscript {
     ext.kotlin_version = '1.7.10'
     repositories {
+
         gradlePluginPortal()
         maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
         google()
         jcenter()
         maven { url 'https://jitpack.io' }
+        maven {
+            url uri('./repo')
+        }
 
     }
 
@@ -14,7 +18,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.hujiang.aspectjx:gradle-android-plugin-aspectjx:2.0.10'
-
+//        classpath 'com.intellif.plugin:MyPlugin:1.0.0'
     }
 
 
@@ -24,10 +28,14 @@ buildscript {
 
 allprojects {
     repositories {
+
         maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
         google()
         jcenter()
         maven { url 'https://jitpack.io' }
+        maven {
+            url uri('./repo')
+        }
     }
 }
 

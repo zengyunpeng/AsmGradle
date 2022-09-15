@@ -10,6 +10,10 @@ public class OriginalClassV2 {
     }
 
     public void i(String tag, String content) {
-        System.out.println("....");
+        if (tagList.contains(tag)) {
+            return;
+        }
+
+//        System.out.println("....");
     }
 }

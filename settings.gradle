@@ -1,2 +1,3 @@
 rootProject.name = "AsmGradle"
 include ':app'
+include ':plugin'
