@@ -18,6 +18,7 @@ class LogClassNode(private val nextVisitor: ClassVisitor) : ClassNode(Opcodes.AS
 //
 //        }
 
+
         return super.visitMethod(access, name, descriptor, signature, exceptions)
     }
 
